@@ -22,7 +22,7 @@ FlatPDF is a REST API that converts HTML to PDF. Unlike cloud services that char
 ### Option 1: Docker Compose (Recommended)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/flatpdf-api.git
+git clone https://github.com/ozxc44/flatpdf-api.git
 cd flatpdf-api
 docker compose up -d
 ```
@@ -130,7 +130,7 @@ MIT — Use it however you want. Commercial, personal, open source — all fine.
 
 ## Support
 
-- GitHub Issues: [github.com/YOUR_USERNAME/flatpdf-api/issues](https://github.com/YOUR_USERNAME/flatpdf-api/issues)
+- GitHub Issues: [github.com/ozxc44/flatpdf-api/issues](https://github.com/ozxc44/flatpdf-api/issues)
 - Documentation: [docs.flatpdf.io](https://docs.flatpdf.io) (coming soon)
 
 ---

@@ -148,36 +148,47 @@ async def convert_html_to_pdf(request: ConvertRequest, http_request: Request):
         )
 
     try:
-        # For MVP: Mock response since Gotenberg isn't deployed yet
-        # In production, this will call Gotenberg API
-        return ConvertResponse(
-            success=True,
-            message="API is ready. Gotenberg integration in progress...",
-            input_received={
-                "has_html": bool(request.html),
-                "has_url": bool(request.url),
-                "html_length": len(request.html) if request.html else 0,
-                "url": request.url
-            },
-            next_steps=[
-                "Deploy Gotenberg service",
-                "Implement actual PDF generation",
-                "Return PDF or CDN URL"
-            ]
-        )
+        # Call Gotenberg API for PDF generation
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            gotenberg_url = f"{GOTENBERG_URL}/forms/chromium/convert/pdf"
 
-        # Production implementation (coming soon):
-        # async with httpx.AsyncClient(timeout=30.0) as client:
-        #     gotenberg_request = {
-        #         "url": request.url if request.url else None,
-        #         "html": request.html if request.html else None,
-        #     }
-        #     response = await client.post(
-        #         f"{GOTENBERG_URL}/forms/chromium/convert/pdf",
-        #         data=gotenberg_request,
-        #     )
-        #     pdf_bytes = response.content
-        #     # Store and return URL or base64
+            # Prepare multipart form data
+            files = {}
+            data = {}
+
+            if request.html:
+                files["files"] = ("index.html", request.html, "text/html")
+                data["paperWidth"] = "8.27"  # A4 width in inches
+                data["paperHeight"] = "11.69"  # A4 height in inches
+                data["marginTop"] = request.options.get("margin", "1").replace("cm", "")
+                data["marginBottom"] = request.options.get("margin", "1").replace("cm", "")
+                data["marginLeft"] = request.options.get("margin", "1").replace("cm", "")
+                data["marginRight"] = request.options.get("margin", "1").replace("cm", "")
+            elif request.url:
+                data["url"] = request.url
+            else:
+                return ConvertResponse(
+                    success=False,
+                    error="Either 'html' or 'url' is required"
+                )
+
+            response = await client.post(
+                gotenberg_url,
+                files=files if files else None,
+                data=data if data else None,
+            )
+            response.raise_for_status()
+            pdf_bytes = response.content
+
+            # Encode PDF to base64 for JSON response
+            import base64
+            pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+
+            return ConvertResponse(
+                success=True,
+                pdf_base64=pdf_base64,
+                pages=pdf_bytes.count(b"%%Page")  # Rough page count estimation
+            )
 
     except httpx.TimeoutException:
         return ConvertResponse(

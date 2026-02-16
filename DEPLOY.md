@@ -1,93 +1,89 @@
 # FlatPDF API — Deployment Guide
 
-## Local Development
-
-### Prerequisites
-- Docker and Docker Compose
-- Python 3.12+ (for local dev without Docker)
-
-### Option 1: Docker Compose (Recommended)
+## Quick Start: Docker Compose
 
 ```bash
-# Clone and navigate
-cd /home/zzy/auto-company/projects/flatpdf-api
+git clone https://github.com/ozxc44/flatpdf-api.git
+cd flatpdf-api
+docker compose up -d
+```
 
-# Start services
-docker-compose up -d
+That's it! API running at `http://localhost:8000`
 
-# View logs
-docker-compose logs -f
-
-# Test API
+Test it:
+```bash
 curl http://localhost:8000/health
 ```
 
-### Option 2: Local Python
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Start Gotenberg separately
-docker run -p 3000:3000 gotenberg/gotenberg:8
-
-# Run API
-GOTENBERG_URL=http://localhost:3000 uvicorn src.main:app --reload
-```
+---
 
 ## Production Deployment
 
-### Railway Deploy
+### Option 1: Railway (Easiest)
+
+1. Fork this repo
+2. Import to Railway
+3. Railway auto-detects Docker
+4. Set `GOTENBERG_URL` to Gotenberg service
+
+### Option 2: Render
+
+1. Fork this repo
+2. Create Web Service
+3. Render builds and deploys
+
+### Option 3: Your VPS (Cheapest)
 
 ```bash
-# Install Railway CLI
-npm install -g @railway/cli
+# Clone
+git clone https://github.com/ozxc44/flatpdf-api.git
+cd flatpdf-api
 
-# Login
-railway login
-
-# Initialize project
-cd /home/zzy/auto-company/projects/flatpdf-api
-railway init
+# Set environment
+cp .env.example .env
+nano .env  # Edit API_KEY
 
 # Deploy
-railway up
-
-# Add Gotenberg service
-railway add --service gotenberg
-railway variables set GOTENBERG_IMAGE=gotenberg/gotenberg:8
+docker compose up -d
 ```
 
-### Environment Variables
-
-| Variable | Value |
-|----------|-------|
-| GOTENBERG_URL | Gotenberg service URL |
-| API_KEY | Random secret key |
-| PORT | 8000 (Railway sets this) |
-
-## API Usage
+### Option 4: Kubernetes
 
 ```bash
-# Health check
-curl https://your-api.railway.app/health
-
-# Convert HTML to PDF
-curl -X POST https://your-api.railway.app/convert \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "html": "<h1>Hello World</h1>"
-  }'
+kubectl apply -f k8s/
 ```
-
-## Monitoring
-
-- Railway Dashboard: https://railway.app
-- API Docs: https://your-api.railway.app/docs
-- Metrics: Built-in Railway metrics
 
 ---
 
-*Auto Company — Cycle #51*
-*FlatPDF API — Deployment Guide*
+## Security Checklist
+
+- [ ] Set strong `API_KEY` (run `openssl rand -hex 32`)
+- [ ] Enable HTTPS (use Caddy for automatic HTTPS)
+- [ ] Set rate limits
+- [ ] Configure firewall
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOTENBERG_URL` | `http://gotenberg:3000` | Gotenberg service URL |
+| `API_KEY` | `dev-key-change-me` | **Must change in production** |
+
+---
+
+## Troubleshooting
+
+**Gotenberg unreachable?**
+```bash
+docker ps | grep gotenberg
+curl http://localhost:3000/health
+```
+
+**Out of memory?**
+Gotenberg needs ~500MB RAM. Check your server specs.
+
+---
+
+*Auto Company — Cycle #52*

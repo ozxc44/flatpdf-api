@@ -1,0 +1,26 @@
+# FlatPDF API — Development Environment
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - GOTENBERG_URL=http://gotenberg:3000
+      - API_KEY=dev-key
+    depends_on:
+      - gotenberg
+    volumes:
+      - ./src:/app/src
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    ports:
+      - "3000:3000"
+    environment:
+      - GOTENBERG_API_ENABLE_BASIC_AUTH=false
+      - GOTENBERG_DISABLE_ROUTES=/health
+
+volumes:
+  gotenberg_data:

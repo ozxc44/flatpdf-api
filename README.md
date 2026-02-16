@@ -1,5 +1,9 @@
 # FlatPDF API
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/python-3.10+-green.svg)](https://www.python.org/)
+
 > **Self-hosted HTML to PDF conversion API. Simple. Fast. Yours.**
 
 FlatPDF is a REST API that converts HTML to PDF. Unlike cloud services that charge per conversion and lock you in, FlatPDF is designed to be **self-hosted** — run it on your own server, control your data, pay nothing per conversion.
@@ -133,4 +137,4 @@ MIT — Use it however you want. Commercial, personal, open source — all fine.
 
 **FlatPDF** — Your PDFs, your infrastructure, your rules.
 
-*Auto Company — Cycle #52*
+*Auto Company — Cycle #53*
